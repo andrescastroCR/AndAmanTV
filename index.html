@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AndAmanTV</title>
+<meta name="theme-color" content="#0f1115">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --line:#262a33; --txt:#e8eaf0; --mut:#8b92a1; --acc:#a855f7; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body { background:var(--bg); color:var(--txt); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .app { display:grid; grid-template-columns:1fr 360px; grid-template-rows:auto 1fr; height:100vh; }
+
+  .top { grid-column:1 / -1; display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--panel); }
+  #logo { height:44px; width:auto; max-width:160px; object-fit:contain; display:block; }
+  .marca { font-size:20px; font-weight:700; letter-spacing:.3px; }
+  .sp { flex:1; }
+
+  .player { display:flex; flex-direction:column; padding:16px; gap:10px; min-width:0; min-height:0; }
+  .video-wrap { background:#000; border-radius:12px; overflow:hidden; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; position:relative; }
+  video { width:100%; height:100%; background:#000; }
+  #aviso { position:absolute; left:12px; right:12px; bottom:12px; background:rgba(180,40,40,.92); padding:10px 12px; border-radius:8px; font-size:14px; display:none; z-index:3; }
+  #ovl { position:absolute; left:16px; top:16px; background:rgba(0,0,0,.65); padding:8px 14px; border-radius:8px; font-size:20px; font-weight:600; opacity:0; transition:opacity .3s; pointer-events:none; z-index:2; }
+  #ovl.on { opacity:1; }
+  #actual { font-size:18px; font-weight:600; }
+  #diag { font-size:12px; color:var(--mut); min-height:1em; word-break:break-word; }
+
+  .side { background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column; min-height:0; }
+  .tools { padding:12px; display:flex; flex-direction:column; gap:8px; border-bottom:1px solid var(--line); }
+  input, select, textarea, button { background:var(--bg); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:9px 10px; font:inherit; }
+  button { cursor:pointer; }
+  button:hover { border-color:var(--acc); }
+  .row { display:flex; gap:8px; }
+  .row > * { flex:1; min-width:0; }
+  #lista { overflow:auto; flex:1; }
+  .ch { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; outline:none; }
+  .ch:hover { background:#1e222b; }
+  .ch.activo { background:#2a1f4a; }
+  .ch:focus, .ch:focus-within { background:#3a2a66; box-shadow:inset 4px 0 0 var(--acc); }
+  .ch .n { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ch .g { color:var(--mut); font-size:12px; }
+  .star { background:none; border:none; font-size:18px; padding:0 6px; color:var(--mut); border-radius:6px; }
+  .star.on { color:#ffc542; }
+  .star:focus { outline:3px solid var(--acc); }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid var(--acc); outline-offset:1px; }
+  details { padding:0 12px 12px; }
+  summary { cursor:pointer; color:var(--mut); padding:8px 0; }
+  textarea { width:100%; height:110px; resize:vertical; }
+  .vacio { padding:20px; color:var(--mut); text-align:center; }
+  .cuenta { color:var(--mut); font-size:12px; }
+  #instalar { display:none; }
+
+  /* ===== Modo TV: todo más grande, pensado para control remoto ===== */
+  body.tv { font-size:22px; }
+  body.tv .app { grid-template-columns:1fr 480px; }
+  body.tv #logo { height:56px; }
+  body.tv .marca { font-size:28px; }
+  body.tv .ch { padding:18px 16px; }
+  body.tv .ch .g { font-size:16px; }
+  body.tv .star { font-size:28px; }
+  body.tv input, body.tv select, body.tv button { padding:14px 14px; }
+  body.tv #actual { font-size:26px; }
+  body.tv #ovl { font-size:32px; padding:12px 22px; }
+
+  /* Pantalla completa del reproductor */
+  .video-wrap:fullscreen { border-radius:0; }
+  .video-wrap:-webkit-full-screen { border-radius:0; }
+
+  @media (max-width:800px) {
+    .app { grid-template-columns:1fr; grid-template-rows:auto auto 1fr; height:auto; min-height:100vh; }
+    .video-wrap { aspect-ratio:16/9; flex:none; }
+    .side { border-left:none; border-top:1px solid var(--line); max-height:70vh; }
+    #logo { height:32px; }
+    #btnFs { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <img id="logo" src="logo.png" alt="">
+    <span class="marca" id="marca">AndAmanTV</span>
+    <span class="sp"></span>
+    <button id="instalar">Instalar app</button>
+    <button id="btnTv" title="Atajo: T">Modo TV</button>
+    <button id="btnFs" title="Atajo: F">Pantalla completa</button>
+  </header>
+
+  <main class="player">
+    <div class="video-wrap" id="wrap">
+      <video id="video" controls autoplay playsinline></video>
+      <div id="ovl"></div>
+      <div id="aviso"></div>
+    </div>
+    <div id="actual">Elige un canal</div>
+    <div id="diag"></div>
+  </main>
+
+  <aside class="side">
+    <div class="tools">
+      <input id="buscar" type="search" placeholder="Buscar canal...">
+      <div class="row">
+        <select id="grupo"></select>
+        <select id="vista">
+          <option value="todos">Todos</option>
+          <option value="fav">Favoritos</option>
+        </select>
+      </div>
+      <div class="cuenta" id="cuenta"></div>
+    </div>
+    <div id="lista"></div>
+    <details>
+      <summary>Agregar canales (lista M3U)</summary>
+      <textarea id="m3u" placeholder="Pega aquí el contenido de una lista M3U, o un link por línea con formato: Nombre | URL | Grupo"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="importar">Importar</button>
+        <button id="borrar">Borrar importados</button>
+      </div>
+    </details>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js"></script>
+<script>
+/* ============ CONFIGURACIÓN ============ */
+const NOMBRE_APP = "AndAmanTV";               // nombre que se ve junto al logo
+const PREFIJO = "andaman_";               // evita mezclar datos con otras apps del mismo dominio
+const ARCHIVO_CANALES = "canales.m3u";    // lista de canales que se carga sola
+const MOSTRAR_IMPORTAR = false;       // true = muestra de nuevo "Agregar canales (lista M3U)"
+// Dirección de tu proxy de Cloudflare (ver instrucciones). Déjala vacía "" para no usar proxy.
+// Ejemplo: "https://mi-tv-proxy.tuusuario.workers.dev/"
+const PROXY_URL = "https://usatv-proxy.andrescastro818.workers.dev/";
+// Se usa solo si no se puede leer canales.m3u (por ejemplo al abrir el archivo con doble clic):
+const RESPALDO = [
+  { nombre: "Red Bull TV", url: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8", grupo: "Deportes" },
+];
+/* ======================================= */
+
+const $ = id => document.getElementById(id);
+const video = $("video"), aviso = $("aviso"), wrap = $("wrap");
+let hls = null, actual = null, visibles = [], ovlTimer = null, vigilante = null;
+
+function leer(clave, def) { try { const v = JSON.parse(localStorage.getItem(PREFIJO + clave)); return v ?? def; } catch (e) { return def; } }
+function guardar(clave, val) { try { localStorage.setItem(PREFIJO + clave, JSON.stringify(val)); } catch (e) {} }
+
+document.title = NOMBRE_APP;
+if (!MOSTRAR_IMPORTAR) { const d = document.querySelector("details"); if (d) d.style.display = "none"; }
+$("marca").textContent = NOMBRE_APP;
+// Si no existe logo.png, se oculta la imagen y queda solo el nombre
+$("logo").onerror = () => { $("logo").style.display = "none"; };
+
+let archivo = [];
+let importados = leer("tv_importados", []);
+let favoritos = new Set(leer("tv_favoritos", []));
+
+function todos() {
+  const vistos = new Set(), res = [];
+  for (const c of archivo.concat(importados)) { if (!vistos.has(c.url)) { vistos.add(c.url); res.push(c); } }
+  return res;
+}
+
+function parseM3U(texto) {
+  const salida = [];
+  const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  let pend = null;
+  for (const l of lineas) {
+    if (l.startsWith("#EXTINF")) {
+      const g = l.match(/group-title="([^"]*)"/);
+      const n = l.split(",").slice(1).join(",").trim();
+      pend = { nombre: n || "Sin nombre", grupo: g ? g[1] : "Importados" };
+    } else if (l.startsWith("#")) {
+      continue;
+    } else if (/^https?:\/\//i.test(l)) {
+      salida.push({ nombre: pend ? pend.nombre : l, url: l, grupo: pend ? pend.grupo : "Importados" });
+      pend = null;
+    } else if (l.includes("|")) {
+      const [n, u, g] = l.split("|").map(s => s.trim());
+      if (/^https?:\/\//i.test(u || "")) salida.push({ nombre: n || u, url: u, grupo: g || "Importados" });
+    }
+  }
+  return salida;
+}
+
+async function cargarArchivo() {
+  try {
+    const r = await fetch(ARCHIVO_CANALES + "?v=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("http " + r.status);
+    const lista = parseM3U(await r.text());
+    if (!lista.length) throw new Error("vacío");
+    archivo = lista;
+    guardar("tv_cache_archivo", lista);
+  } catch (e) {
+    archivo = leer("tv_cache_archivo", []);
+    if (!archivo.length) archivo = RESPALDO;
+  }
+}
+
+function llenarGrupos() {
+  const sel = $("grupo"), previo = sel.value;
+  const grupos = [...new Set(todos().map(c => c.grupo || "Otros"))].sort();
+  sel.innerHTML = "";
+  const t = document.createElement("option"); t.value = ""; t.textContent = "Todas las categorías"; sel.appendChild(t);
+  grupos.forEach(g => { const o = document.createElement("option"); o.value = g; o.textContent = g; sel.appendChild(o); });
+  sel.value = grupos.includes(previo) ? previo : "";
+}
+
+function dibujar() {
+  const q = $("buscar").value.toLowerCase();
+  const g = $("grupo").value;
+  const soloFav = $("vista").value === "fav";
+  const cont = $("lista");
+  cont.innerHTML = "";
+  visibles = todos().filter(c =>
+    (!q || c.nombre.toLowerCase().includes(q)) &&
+    (!g || (c.grupo || "Otros") === g) &&
+    (!soloFav || favoritos.has(c.url))
+  );
+  $("cuenta").textContent = visibles.length + " de " + todos().length + " canales · " + (PROXY_URL ? "proxy activo" : "sin proxy");
+  if (!visibles.length) {
+    const v = document.createElement("div"); v.className = "vacio"; v.textContent = "No hay canales para mostrar"; cont.appendChild(v); return;
+  }
+  visibles.forEach(c => {
+    const fila = document.createElement("div");
+    fila.className = "ch" + (actual && actual.url === c.url ? " activo" : "");
+    fila.tabIndex = 0;
+    const info = document.createElement("div"); info.className = "n"; info.textContent = c.nombre;
+    const gr = document.createElement("div"); gr.className = "g"; gr.textContent = c.grupo || "";
+    const caja = document.createElement("div"); caja.style.flex = "1"; caja.style.minWidth = "0";
+    caja.appendChild(info); caja.appendChild(gr);
+    const est = document.createElement("button");
+    est.className = "star" + (favoritos.has(c.url) ? " on" : "");
+    est.textContent = "★"; est.title = "Favorito"; est.tabIndex = -1;
+    est.onclick = e => {
+      e.stopPropagation();
+      favoritos.has(c.url) ? favoritos.delete(c.url) : favoritos.add(c.url);
+      guardar("tv_favoritos", [...favoritos]);
+      dibujar();
+    };
+    fila.appendChild(caja); fila.appendChild(est);
+    fila.onclick = () => reproducir(c);
+    cont.appendChild(fila);
+  });
+}
+
+video.addEventListener("playing", () => {
+  clearTimeout(vigilante);
+  if (/^(El canal no empezó|Reintentando)/.test(aviso.textContent)) mostrarAviso("");
+});
+video.addEventListener("error", () => {
+  if (!hls || !video.error) return;
+  mostrarAviso("El navegador no pudo decodificar el video [video " + video.error.code + "]. Puede ser un formato no soportado (por ejemplo 4K/HEVC).");
+});
+
+function mostrarAviso(msg) { aviso.textContent = msg; aviso.style.display = msg ? "block" : "none"; }
+
+function mostrarNombre(txt) {
+  const o = $("ovl"); o.textContent = txt; o.classList.add("on");
+  clearTimeout(ovlTimer); ovlTimer = setTimeout(() => o.classList.remove("on"), 3000);
+}
+
+let usaProxyEnLista = new Set(leer("tv_proxy_urls", []));
+const viaProxy = u => PROXY_URL.replace(/\/?$/, "/") + "?u=" + encodeURIComponent(u);
+const esIP = u => { try { return /^\d{1,3}(\.\d{1,3}){3}$/.test(new URL(u).hostname); } catch (e) { return false; } };
+
+function reproducir(c, forzarProxy) {
+  actual = c;
+  guardar("tv_ultimo", c.url);
+  $("actual").textContent = c.nombre;
+  mostrarNombre(c.nombre);
+  mostrarAviso("");
+  video.onerror = null;
+  clearTimeout(vigilante);
+  $("diag").textContent = "";
+  if (hls) { hls.destroy(); hls = null; }
+
+  if (/\.mpd(\?|$)/i.test(c.url)) {
+    mostrarAviso("Este canal usa formato DASH (.mpd) y la página todavía no lo soporta.");
+    dibujar(); return;
+  }
+
+  const esHttp = c.url.startsWith("http://");
+  const necesitaHttps = location.protocol === "https:" && esHttp;
+  const proxyDisponible = !!PROXY_URL;
+  const usaProxy = proxyDisponible && (forzarProxy || usaProxyEnLista.has(c.url) || necesitaHttps);
+
+  if (necesitaHttps && !proxyDisponible) {
+    mostrarAviso("Este canal usa HTTP y la página está en HTTPS, por eso el navegador lo bloquea.");
+    dibujar(); return;
+  }
+
+  const fuente = usaProxy ? viaProxy(c.url) : c.url;
+
+  const fallo = codigo => {
+    if (actual !== c) return;
+    const sufijo = codigo ? " [" + codigo + "]" : "";
+    if (!usaProxy && proxyDisponible) {
+      mostrarAviso("Reintentando por el proxy...");
+      reproducir(c, true);
+      return;
+    }
+    if (usaProxy && esIP(c.url)) {
+      mostrarAviso("Este canal usa una dirección IP y el proxy de Cloudflare no puede conectarse a esas." + sufijo);
+    } else if (usaProxy) {
+      mostrarAviso("No se pudo cargar el canal ni con el proxy. Probablemente está caído o bloquea conexiones externas." + sufijo);
+    } else {
+      mostrarAviso("No se pudo cargar el canal. Puede estar caído o el servidor no permite reproducirlo desde una página web (CORS)." + sufijo);
+    }
+  };
+
+  const funciono = () => {
+    if (actual !== c) return;
+    if (usaProxy && !necesitaHttps && forzarProxy && !usaProxyEnLista.has(c.url)) {
+      usaProxyEnLista.add(c.url);
+      guardar("tv_proxy_urls", [...usaProxyEnLista]);
+    }
+  };
+
+  let info = "";
+  const est = { frag: 0, incidencias: [] };
+  vigilante = setTimeout(() => {
+    if (actual !== c || (!video.paused && video.readyState >= 3)) return;
+    const nivel = hls && hls.currentLevel >= 0 && hls.levels && hls.levels[hls.currentLevel]
+      ? hls.levels[hls.currentLevel].width + "x" + hls.levels[hls.currentLevel].height : "?";
+    const tecnico = "ruta " + (usaProxy ? "proxy" : "directa") + ", segmentos cargados " + est.frag +
+      ", nivel " + nivel + ", estado " + video.readyState + "/4" +
+      (est.incidencias.length ? ", incidencias: " + est.incidencias.join(", ") : "");
+    mostrarAviso("El canal no empezó a reproducirse tras 15 segundos. [" + tecnico + "]" + (video.error ? " [video " + video.error.code + "]" : ""));
+    $("diag").textContent = "Formato: " + info + " | " + tecnico;
+  }, 15000);
+
+  const nativoOk = !!video.canPlayType("application/vnd.apple.mpegurl");
+  const esApple = /Apple/i.test(navigator.vendor || "");
+  const usarNativo = () => {
+    if (hls) { hls.destroy(); hls = null; }
+    $("diag").textContent = "Reproductor nativo del sistema";
+    video.onerror = () => fallo("nativo");
+    video.onloadedmetadata = funciono;
+    video.src = fuente;
+    video.play().catch(() => {});
+  };
+
+  if (nativoOk && esApple) {
+    usarNativo();
+  } else if (window.Hls && Hls.isSupported()) {
+    const h = new Hls({ capLevelToPlayerSize: true });
+    hls = h;
+    let intentosMedia = 0;
+    h.on(Hls.Events.FRAG_LOADED, () => { est.frag++; });
+    h.on(Hls.Events.ERROR, (_, d) => {
+      if (actual === c && est.incidencias.length < 4 && !est.incidencias.includes(d.details)) est.incidencias.push(d.details);
+      if (d.details === "manifestIncompatibleCodecsError" && actual === c) {
+        if (nativoOk) { mostrarAviso("Reintentando con el reproductor del sistema..."); usarNativo(); }
+        else {
+          clearTimeout(vigilante);
+          mostrarAviso("Este canal solo ofrece video HEVC (H.265) y este navegador no puede reproducirlo. Funciona en iPhone, iPad o Mac con Safari.");
+        }
+        return;
+      }
+      if (!d.fatal || actual !== c) return;
+      if (d.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        const http = d.response && d.response.code ? " HTTP " + d.response.code : "";
+        const rechazo = d.response && /Origen no permitido/.test(d.response.text || "") ? " rechazado por el proxy" : "";
+        fallo(d.details + http + rechazo);
+      }
+      else if (d.type === Hls.ErrorTypes.MEDIA_ERROR && intentosMedia < 2) { intentosMedia++; h.recoverMediaError(); }
+      else if (nativoOk) { mostrarAviso("Reintentando con el reproductor del sistema..."); usarNativo(); }
+      else mostrarAviso("Error al reproducir este canal. [" + d.details + "]");
+    });
+    h.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+      const ms = window.MediaSource;
+      info = (data.levels || []).map(l => {
+        const cod = l.videoCodec || "";
+        const ok = ms && cod ? ms.isTypeSupported('video/mp4; codecs="' + cod + '"') : true;
+        return (l.width ? l.width + "x" + l.height : "?") + " " + (cod || "sin códec") + (ok ? "" : " (este navegador no lo soporta)");
+      }).join(" | ");
+      $("diag").textContent = "Formato: " + info;
+      funciono(); video.play().catch(() => {});
+    });
+    h.loadSource(fuente);
+    h.attachMedia(video);
+  } else if (nativoOk) {
+    usarNativo();
+  } else {
+    mostrarAviso("Este navegador no soporta reproducción HLS.");
+  }
+  dibujar();
+}
+
+/* ---------- Cambiar de canal (arriba/abajo en la lista) ---------- */
+function cambiar(d) {
+  if (!visibles.length) return;
+  let i = actual ? visibles.findIndex(c => c.url === actual.url) : -1;
+  i = i < 0 ? (d > 0 ? 0 : visibles.length - 1) : (i + d + visibles.length) % visibles.length;
+  reproducir(visibles[i]);
+}
+
+/* ---------- Pantalla completa ---------- */
+function pantallaCompleta() {
+  const fs = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fs) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+  if (req) req.call(wrap);
+  else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen(); // iPhone
+}
+$("btnFs").onclick = pantallaCompleta;
+video.ondblclick = pantallaCompleta;
+
+/* ---------- Modo TV ---------- */
+const parecidoTV = /SMART-TV|SmartTV|Tizen|Web0S|WebOS|BRAVIA|AFTM|Android TV|GoogleTV|HbbTV|NetCast/i.test(navigator.userAgent);
+function aplicarModoTV(on) {
+  document.body.classList.toggle("tv", on);
+  $("btnTv").textContent = on ? "Modo normal" : "Modo TV";
+}
+function alternarTV() {
+  const on = !document.body.classList.contains("tv");
+  aplicarModoTV(on);
+  guardar("tv_modo", on ? "1" : "0");
+}
+$("btnTv").onclick = alternarTV;
+{
+  const pref = leer("tv_modo", null);
+  aplicarModoTV(pref === null ? parecidoTV : pref === "1");
+}
+
+/* ---------- Teclado / control remoto ---------- */
+function filas() { return [...$("lista").querySelectorAll(".ch")]; }
+
+function moverFoco(d) {
+  const items = filas();
+  if (!items.length) return;
+  let i = items.indexOf(document.activeElement);
+  if (i < 0) {
+    const act = items.findIndex(f => f.classList.contains("activo"));
+    i = act >= 0 ? act : 0;
+  } else {
+    i = Math.max(0, Math.min(items.length - 1, i + d));
+  }
+  items[i].focus();
+  items[i].scrollIntoView({ block: "nearest" });
+}
+
+document.addEventListener("keydown", e => {
+  const t = e.target, tag = t.tagName || "";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+    if (tag === "INPUT" && e.key === "ArrowDown") { e.preventDefault(); moverFoco(1); }
+    return;
+  }
+  // Botón "Atrás" de algunas TV (Tizen 10009, webOS 461)
+  if (e.keyCode === 10009 || e.keyCode === 461) {
+    if (document.fullscreenElement || document.webkitFullscreenElement) pantallaCompleta();
+    return;
+  }
+  switch (e.key) {
+    case "ArrowDown": e.preventDefault(); moverFoco(1); break;
+    case "ArrowUp": e.preventDefault(); moverFoco(-1); break;
+    case "ArrowRight":
+      if (t.classList && t.classList.contains("ch")) { e.preventDefault(); t.querySelector(".star").focus(); }
+      break;
+    case "ArrowLeft":
+      if (t.classList && t.classList.contains("star")) { e.preventDefault(); t.closest(".ch").focus(); }
+      break;
+    case "Enter":
+      if (t.classList && t.classList.contains("ch")) { e.preventDefault(); t.click(); }
+      break;
+    case "PageDown": case "ChannelDown": e.preventDefault(); cambiar(1); break;
+    case "PageUp": case "ChannelUp": e.preventDefault(); cambiar(-1); break;
+    case "f": case "F": pantallaCompleta(); break;
+    case "m": case "M": video.muted = !video.muted; break;
+    case "t": case "T": alternarTV(); break;
+    case "/": e.preventDefault(); $("buscar").focus(); break;
+  }
+});
+
+/* ---------- Buscar / filtrar / importar ---------- */
+$("buscar").oninput = dibujar;
+$("grupo").onchange = dibujar;
+$("vista").onchange = dibujar;
+
+$("importar").onclick = () => {
+  const nuevos = parseM3U($("m3u").value);
+  if (!nuevos.length) { alert("No encontré canales válidos en el texto."); return; }
+  const existentes = new Set(todos().map(c => c.url));
+  nuevos.forEach(c => { if (!existentes.has(c.url)) { importados.push(c); existentes.add(c.url); } });
+  guardar("tv_importados", importados);
+  $("m3u").value = "";
+  llenarGrupos(); dibujar();
+};
+
+$("borrar").onclick = () => {
+  if (!confirm("¿Borrar los canales importados a mano? Los canales de canales.m3u no se tocan.")) return;
+  importados = []; guardar("tv_importados", importados);
+  llenarGrupos(); dibujar();
+};
+
+/* ---------- Instalar como app (PWA) ---------- */
+let eventoInstalar = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault(); eventoInstalar = e; $("instalar").style.display = "inline-block";
+});
+$("instalar").onclick = async () => {
+  if (!eventoInstalar) return;
+  eventoInstalar.prompt();
+  await eventoInstalar.userChoice;
+  eventoInstalar = null; $("instalar").style.display = "none";
+};
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+/* ---------- Inicio ---------- */
+(async function iniciar() {
+  await cargarArchivo();
+  llenarGrupos();
+  const ult = leer("tv_ultimo", null);
+  const inicial = todos().find(c => c.url === ult);
+  if (inicial) { actual = inicial; $("actual").textContent = inicial.nombre; }
+  dibujar();
+})();
+</script>
+</body>
+</html>

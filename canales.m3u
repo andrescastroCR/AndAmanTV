@@ -1,0 +1,6 @@
+#EXTM3U
+# Lista de canales de AndAmanTV. La pagina la carga automaticamente.
+# Para agregar un canal copia las dos lineas (#EXTINF y el link) y cambia el nombre, el grupo y la URL.
+# Recomendado: links https:// con dominio y terminados en .m3u8.
+#EXTINF:-1 group-title="Sports",Red Bull TV
+https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8
