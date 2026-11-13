@@ -32,8 +32,6 @@ https://stream.lamegatv.com/hls/sanvitotelevision/index.m3u8
 https://cloudvideo.servers10.com:8081/8230/index.m3u8
 #EXTINF:-1 group-title="Nacionales",TV Sur Canal 14
 https://k20.usastreams.com:8081/tvsur/index.m3u8
-#EXTINF:-1 group-title="Musica",VoiceOver Radio TV
-https://cloudvideo.servers10.com:8081/8198/index.m3u8
 #EXTINF:-1 group-title="Nacionales",Zurquí TV
 https://videoserver.tmcreativos.com:19360/gesfnvpamn/gesfnvpamn.m3u8
 #EXTINF:-1 group-title="Musica",VM Latino
@@ -52,3 +50,5 @@ https://59ef525c24caa.streamlock.net/tvurbano/tvurbano/playlist.m3u8
 https://59ef525c24caa.streamlock.net/videotour/videotour/playlist.m3u8
 #EXTINF:-1 group-title="Musica",La Potente Radio TV
 https://latamvdo.com:3626/hybrid/play.m3u8
+#EXTINF:-1 group-title="Musica",VoiceOver Radio TV
+https://cloudvideo.servers10.com:8081/8198/index.m3u8
