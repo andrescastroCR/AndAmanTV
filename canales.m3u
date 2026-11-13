@@ -24,41 +24,31 @@ https://rtmp.info/iqtv/envivo/playlist.m3u8
 http://k3.usastreams.com/CableLatino/88stereo/playlist.m3u8
 #EXTINF:-1 group-title="Nacionales",Agrotendencia TV
 https://5fc584f3f19c9.streamlock.net/agrotendencia/videoagrotendencia_hls1/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",Canal 11
-https://d3mstgwjcwqz1y.cloudfront.net/ts:abr.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",Canal 4
-https://dlhn7gdemxofz.cloudfront.net/ts:abr.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",Colosal TV
+#EXTINF:-1 group-title="Nacionales",Colosal TV
 https://5eac7b031d945.streamlock.net/COLOSAL/COLOSAL/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",IQ Channel
-https://rtmp.info/iqtv/envivo/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",San José TV
+#EXTINF:-1 group-title="Nacionales",San José TV
 https://rtmp.info/sanjosetv/envivo/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",SOY Plancha TV
+#EXTINF:-1 group-title="Musica",SOY Plancha TV
 https://59ef525c24caa.streamlock.net/vmtv/soyplancha/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",Urbano TV
+#EXTINF:-1 group-title="Musica",Urbano TV
 https://59ef525c24caa.streamlock.net/tvurbano/tvurbano/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Generalistas",Video Tour Channel
+#EXTINF:-1 group-title="Musica",Video Tour Channel
 https://59ef525c24caa.streamlock.net/videotour/videotour/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Extrema TV
-https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Garabito TV
+#EXTINF:-1 group-title="Nacionales",Garabito TV
 https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Guatuso TV
+#EXTINF:-1 group-title="Nacionales",Guatuso TV
 https://5cf4a2c2512a2.streamlock.net/8176/8176/playlist.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",La Potente Radio TV
+#EXTINF:-1 group-title="Musica",La Potente Radio TV
 https://latamvdo.com:3626/hybrid/play.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Los Santos TV
-https://lstv.duckdns.org:449/hls/lstv.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Norte Informativo TV
+#EXTINF:-1 group-title="Nacionales",Norte Informativo TV
 https://videohd.live:19360/8076/8076.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",San Vito Television
+#EXTINF:-1 group-title="Nacionales",San Vito Television
 https://stream.lamegatv.com/hls/sanvitotelevision/index.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",TDtv
+#EXTINF:-1 group-title="Nacionales",TDtv
 https://cloudvideo.servers10.com:8081/8230/index.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",TV Sur Canal 14
+#EXTINF:-1 group-title="Nacionales",TV Sur Canal 14
 https://k20.usastreams.com:8081/tvsur/index.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",VoiceOver Radio TV
+#EXTINF:-1 group-title="Musica",VoiceOver Radio TV
 https://cloudvideo.servers10.com:8081/8198/index.m3u8
-#EXTINF:-1 group-title="Costa Rica - Regionales",Zurquí TV
+#EXTINF:-1 group-title="Nacionales",Zurquí TV
 https://videoserver.tmcreativos.com:19360/gesfnvpamn/gesfnvpamn.m3u8
