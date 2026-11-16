@@ -4,10 +4,22 @@
 # Recomendado: links https:// con dominio y terminados en .m3u8.
 #EXTINF:-1 group-title="Nacionales",Canal 1
 https://vid.canal1cr.com:3424/multi_live/play_720.m3u8
+#EXTINF:-1 group-title="Nacionales",Canal 4
+http://45-186-106-207.sslip.io:8000/play/a09t/index.m3u8
+#EXTINF:-1 group-title="Nacionales",Canal 6
+http://45-5-118-188.sslip.io:8000/play/a02x/index.m3u8
 #EXTINF:-1 group-title="Nacionales",Teletica 7
 https://cdn01.teletica.com/TeleticaLiveStream/Stream/playlist_dvr.m3u8
 #EXTINF:-1 group-title="Nacionales",!OPA¡
 https://5fc584f3f19c9.streamlock.net:443/genteopa/videogenteopa/playlist.m3u8
+#EXTINF:-1 group-title="Nacionales",Canal 11
+http://45-5-117-188.sslip.io:8000/play/a02w/index.m3u8
+#EXTINF:-1 group-title="Nacionales",XperTV
+http://45-163-139-42.sslip.io:8000/play/a02x/index.m3u8
+#EXTINF:-1 group-title="Nacionales",Enlace
+http://45-5-117-57.sslip.io:8999/play/a01c/index.m3u8
+#EXTINF:-1 group-title="Deportes",FUTV
+http://45-228-234-9.sslip.io:8000/play/a06o/index.m3u8
 #EXTINF:-1 group-title="Nacionales",Limon TV
 http://k4.usastreams.com/limontv1/limontv1/playlist.m3u8
 #EXTINF:-1 group-title="Nacionales",Coto Brus TV
@@ -56,5 +68,4 @@ https://cloudvideo.servers10.com:8081/8198/index.m3u8
 http://191-102-39-254.sslip.io:5000/live/ch09/playlist.m3u8
 #EXTINF:-1 group-title="Prueba",Prueba 2 - Teletica 7 (IP)
 http://190-61-101-11.sslip.io:7050/play/a07t/index.m3u8
-#EXTINF:-1 group-title="Prueba",Prueba 3 - Canal 4 (IP)
-http://45-186-106-207.sslip.io:8000/play/a09t/index.m3u8
+
