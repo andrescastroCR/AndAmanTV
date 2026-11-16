@@ -54,3 +54,7 @@ https://latamvdo.com:3626/hybrid/play.m3u8
 https://cloudvideo.servers10.com:8081/8198/index.m3u8
 #EXTINF:-1 group-title="Prueba",Prueba IP (Repretel 6)
 http://191-102-39-254.sslip.io:5000/live/ch09/playlist.m3u8
+#EXTINF:-1 group-title="Prueba",Prueba 2 - Teletica 7 (IP)
+http://190-61-101-11.sslip.io:7050/play/a07t/index.m3u8
+#EXTINF:-1 group-title="Prueba",Prueba 3 - Canal 4 (IP)
+http://45-186-106-207.sslip.io:8000/play/a09t/index.m3u8
