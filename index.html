@@ -277,6 +277,7 @@ video.addEventListener("playing", () => {
 });
 video.addEventListener("error", () => {
   if (!(hls || mpg) || !video.error) return;
+  { const d = $("diag"); if (!/video error/.test(d.textContent)) d.textContent += " | video error " + video.error.code + (video.error.message ? ": " + video.error.message : ""); }
   mostrarAviso("El navegador no pudo decodificar el video [video " + video.error.code + (video.error.message ? ": " + video.error.message : "") + "]. Puede ser un formato no soportado (por ejemplo 4K/HEVC).");
 });
 
@@ -300,12 +301,12 @@ const cargarMpegts = () => window.mpegts ? Promise.resolve() : (promesaMpegts = 
   document.head.appendChild(sc);
 }));
 // Lee solo los primeros bytes: "#EXTM3U" = lista HLS; 0x47 = flujo MPEG-TS directo.
-async function sondearFormato(url) {
+async function sondearFormato(url, estricto) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 12000);
   try {
     const r = await fetch(url, { signal: ctl.signal });
-    if (!r.ok || !r.body) return "hls";
+    if (!r.ok || !r.body) return estricto ? "nada" : "hls";
     const lector = r.body.getReader();
     let buf = new Uint8Array(0);
     while (buf.length < 8) {
@@ -316,8 +317,8 @@ async function sondearFormato(url) {
     ctl.abort();
     const txt = new TextDecoder().decode(buf.slice(0, 7));
     if (txt === "#EXTM3U" || txt.charCodeAt(0) === 0xFEFF) return "hls";
-    return buf[0] === 0x47 ? "ts" : "hls";
-  } catch (e) { return "hls"; }
+    return buf[0] === 0x47 ? "ts" : (estricto ? "nada" : "hls");
+  } catch (e) { return estricto ? "nada" : "hls"; }
   finally { clearTimeout(t); }
 }
 
@@ -349,7 +350,7 @@ function reproducir(c, forzarProxy) {
     dibujar(); return;
   }
 
-  const fuente = usaProxy ? viaProxy(c.url) : c.url;
+  let fuente = usaProxy ? viaProxy(c.url) : c.url;
 
   const fallo = codigo => {
     if (actual !== c) return;
@@ -490,13 +491,14 @@ function reproducir(c, forzarProxy) {
       m.on(mpegts.Events.ERROR, (tipo, detalle, extra) => {
         if (actual !== c || mpg !== m) return;
         const msg = extra && (extra.msg || extra.code) ? " (" + (extra.code ? "código " + extra.code : "") + (extra.msg ? (extra.code ? ": " : "") + extra.msg : "") + ")" : "";
+        const errVideo = video.error ? " [video " + video.error.code + (video.error.message ? ": " + video.error.message : "") + "]" : "";
         const hayReconexion = tipo === mpegts.ErrorTypes.MEDIA_ERROR || (tipo === mpegts.ErrorTypes.NETWORK_ERROR && yaReprodujo);
         if (!hayReconexion) { fallo("mpegts " + (detalle || tipo) + (extra && extra.code ? " HTTP " + extra.code : "")); return; }
         // Si llevaba más de 30 s estable, el contador de reconexiones empieza de nuevo.
         if (inicioFlujo && Date.now() - inicioFlujo > 30000) reintentos = 0;
         if (reintentos >= 8) {
           clearTimeout(vigilante);
-          mostrarAviso("El flujo de este canal se corta repetidamente. [mpegts " + (detalle || tipo) + msg + "]");
+          mostrarAviso("El flujo de este canal se corta repetidamente. [mpegts " + (detalle || tipo) + msg + "]" + errVideo);
           return;
         }
         reintentos++;
@@ -526,10 +528,21 @@ function reproducir(c, forzarProxy) {
   let rutaSinLista = false;
   try { rutaSinLista = !/\.m3u8?$/i.test(new URL(c.url).pathname); } catch (e) {}
   if (rutaSinLista) {
-    sondearFormato(fuente).then(tipo => {
+    (async () => {
+      // Servidores /play/xxxx: además del flujo directo suelen ofrecer la lista HLS en /play/xxxx/index.m3u8,
+      // que el navegador maneja mucho mejor. Se prueba primero y, si no existe, se usa el flujo directo.
+      let ruta = ""; try { ruta = new URL(c.url).pathname; } catch (e) {}
+      if (/\/play\/[^/?#]+\/?$/.test(ruta)) {
+        const alterna = c.url.replace(/\/?$/, "/index.m3u8");
+        const f2 = usaProxy ? viaProxy(alterna) : alterna;
+        const t2 = await sondearFormato(f2, true);
+        if (actual !== c) return;
+        if (t2 === "hls") { fuente = f2; iniciarReproductor(); return; }
+      }
+      const tipo = await sondearFormato(fuente);
       if (actual !== c) return;
       if (tipo === "ts") usarMpegts(); else iniciarReproductor();
-    });
+    })();
   } else {
     iniciarReproductor();
   }
