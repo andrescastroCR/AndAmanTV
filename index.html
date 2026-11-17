@@ -144,7 +144,7 @@ const RESPALDO = [
 
 const $ = id => document.getElementById(id);
 const video = $("video"), aviso = $("aviso"), wrap = $("wrap");
-let hls = null, actual = null, visibles = [], ovlTimer = null, vigilante = null;
+let hls = null, actual = null, visibles = [], ovlTimer = null, vigilante = null, vigilanteVideo = null;
 
 function leer(clave, def) { try { const v = JSON.parse(localStorage.getItem(PREFIJO + clave)); return v ?? def; } catch (e) { return def; } }
 function guardar(clave, val) { try { localStorage.setItem(PREFIJO + clave, JSON.stringify(val)); } catch (e) {} }
@@ -250,6 +250,12 @@ function dibujar() {
 
 video.addEventListener("playing", () => {
   clearTimeout(vigilante);
+  clearTimeout(vigilanteVideo);
+  vigilanteVideo = setTimeout(() => {
+    if (!video.paused && video.currentTime > 0 && video.videoWidth === 0) {
+      mostrarAviso("Solo se reproduce el audio: el video de este canal usa un formato que este navegador no soporta (por ejemplo HEVC/H.265). Prueba en un iPhone, iPad o Mac, o en VLC.");
+    }
+  }, 6000);
   if (/^(El canal no empezó|Reintentando)/.test(aviso.textContent)) mostrarAviso("");
 });
 video.addEventListener("error", () => {
@@ -276,6 +282,7 @@ function reproducir(c, forzarProxy) {
   mostrarAviso("");
   video.onerror = null;
   clearTimeout(vigilante);
+  clearTimeout(vigilanteVideo);
   $("diag").textContent = "";
   if (hls) { hls.destroy(); hls = null; }
 
@@ -352,6 +359,11 @@ function reproducir(c, forzarProxy) {
     hls = h;
     let intentosMedia = 0;
     h.on(Hls.Events.FRAG_LOADED, () => { est.frag++; });
+    h.on(Hls.Events.BUFFER_CODECS, (_, d) => {
+      const v = d.video && d.video.codec ? d.video.codec : "sin video";
+      const a = d.audio && d.audio.codec ? d.audio.codec : "sin audio";
+      $("diag").textContent = $("diag").textContent.replace(/ \| Códecs:.*$/, "") + " | Códecs: video " + v + ", audio " + a;
+    });
     h.on(Hls.Events.ERROR, (_, d) => {
       if (actual === c && est.incidencias.length < 4 && !est.incidencias.includes(d.details)) est.incidencias.push(d.details);
       if (d.details === "manifestIncompatibleCodecsError" && actual === c) {
