@@ -248,14 +248,31 @@ function dibujar() {
   });
 }
 
+let inicioReproduccion = 0, tiempoImagen = null, sondaVideo = null;
+function vigilarImagen() {
+  clearInterval(sondaVideo);
+  const t0 = Date.now();
+  let avisado = false;
+  sondaVideo = setInterval(() => {
+    if (video.paused || video.currentTime <= 0) return;
+    const seg = Math.round((Date.now() - t0) / 1000);
+    if (video.videoWidth > 0) {
+      clearInterval(sondaVideo);
+      if (avisado) mostrarAviso("");
+      tiempoImagen = seg;
+      if (seg >= 3) { const d = $("diag"); d.textContent = d.textContent.replace(/ \| Imagen tras.*$/, "") + " | Imagen tras " + seg + " s"; }
+      return;
+    }
+    if (seg >= 4 && seg < 150) { avisado = true; mostrarAviso("Se escucha el audio y la imagen todavía está cargando (" + seg + " s)..."); }
+    else if (seg >= 150) {
+      clearInterval(sondaVideo);
+      mostrarAviso("Solo se reproduce el audio: tras 2,5 minutos no llegó imagen. El video de este canal puede usar un formato que este navegador no soporta (por ejemplo HEVC/H.265). Prueba en un iPhone, iPad o Mac, o en VLC.");
+    }
+  }, 1000);
+}
 video.addEventListener("playing", () => {
   clearTimeout(vigilante);
-  clearTimeout(vigilanteVideo);
-  vigilanteVideo = setTimeout(() => {
-    if (!video.paused && video.currentTime > 0 && video.videoWidth === 0) {
-      mostrarAviso("Solo se reproduce el audio: el video de este canal usa un formato que este navegador no soporta (por ejemplo HEVC/H.265). Prueba en un iPhone, iPad o Mac, o en VLC.");
-    }
-  }, 6000);
+  if (!sondaVideo || video.videoWidth === 0) vigilarImagen();
   if (/^(El canal no empezó|Reintentando)/.test(aviso.textContent)) mostrarAviso("");
 });
 video.addEventListener("error", () => {
@@ -282,7 +299,7 @@ function reproducir(c, forzarProxy) {
   mostrarAviso("");
   video.onerror = null;
   clearTimeout(vigilante);
-  clearTimeout(vigilanteVideo);
+  clearInterval(sondaVideo); sondaVideo = null;
   $("diag").textContent = "";
   if (hls) { hls.destroy(); hls = null; }
 
@@ -358,7 +375,16 @@ function reproducir(c, forzarProxy) {
     const h = new Hls({ capLevelToPlayerSize: true });
     hls = h;
     let intentosMedia = 0;
-    h.on(Hls.Events.FRAG_LOADED, () => { est.frag++; });
+    h.on(Hls.Events.FRAG_LOADED, (_, d) => {
+      est.frag++;
+      const st = d.frag && d.frag.stats ? d.frag.stats : null;
+      if (st && st.loading && st.loading.end && est.frag <= 12) {
+        const ms = Math.round(st.loading.end - st.loading.start);
+        est.tiempos = (est.tiempos || []).concat(ms + "ms/" + Math.round((st.total || 0) / 1024) + "KB");
+        const dg = $("diag");
+        dg.textContent = dg.textContent.replace(/ \| Fragmentos:.*$/, "") + " | Fragmentos: " + est.tiempos.slice(-4).join(", ") + " (dur " + (d.frag.duration ? d.frag.duration.toFixed(1) : "?") + " s)";
+      }
+    });
     h.on(Hls.Events.BUFFER_CODECS, (_, d) => {
       const v = d.video && d.video.codec ? d.video.codec : "sin video";
       const a = d.audio && d.audio.codec ? d.audio.codec : "sin audio";
