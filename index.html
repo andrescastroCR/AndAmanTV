@@ -276,8 +276,8 @@ video.addEventListener("playing", () => {
   if (/^(El canal no empezó|Reintentando)/.test(aviso.textContent)) mostrarAviso("");
 });
 video.addEventListener("error", () => {
-  if (!hls || !video.error) return;
-  mostrarAviso("El navegador no pudo decodificar el video [video " + video.error.code + "]. Puede ser un formato no soportado (por ejemplo 4K/HEVC).");
+  if (!(hls || mpg) || !video.error) return;
+  mostrarAviso("El navegador no pudo decodificar el video [video " + video.error.code + (video.error.message ? ": " + video.error.message : "") + "]. Puede ser un formato no soportado (por ejemplo 4K/HEVC).");
 });
 
 function mostrarAviso(msg) { aviso.textContent = msg; aviso.style.display = msg ? "block" : "none"; }
@@ -505,6 +505,9 @@ function reproducir(c, forzarProxy) {
         if (mpg === m) mpg = null;
         setTimeout(() => { if (actual === c && !mpg) crear(); }, 800);
       });
+      // En iPhone/iPad (ManagedMediaSource) Safari exige esto para abrir el buffer de video.
+      video.disableRemotePlayback = true;
+      video.setAttribute("playsinline", "");
       m.attachMediaElement(video);
       m.load();
       const pr = m.play(); if (pr && pr.catch) pr.catch(() => {});
