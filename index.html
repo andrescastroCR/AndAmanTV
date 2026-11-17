@@ -473,6 +473,42 @@ function reproducir(c, forzarProxy) {
 
   const usarMpegts = () => {
     $("diag").textContent = "Flujo MPEG-TS directo (sin lista .m3u8)";
+    let reintentos = 0, yaReprodujo = false, inicioFlujo = 0;
+    const crear = () => {
+      if (actual !== c) return;
+      const m = mpegts.createPlayer({ type: "mpegts", isLive: true, url: fuente }, {
+        enableWorker: true, stashInitialSize: 128, autoCleanupSourceBuffer: true,
+        liveBufferLatencyChasing: true, liveBufferLatencyMaxLatency: 8, liveBufferLatencyMinRemain: 1.5
+      });
+      mpg = m;
+      m.on(mpegts.Events.MEDIA_INFO, i => {
+        if (actual !== c || mpg !== m) return;
+        yaReprodujo = true; inicioFlujo = Date.now();
+        $("diag").textContent = "Flujo MPEG-TS directo | " + (i.width ? i.width + "x" + i.height + " " : "") + "video " + (i.videoCodec || "?") + ", audio " + (i.audioCodec || "?") + (reintentos ? " | reconexiones: " + reintentos : "");
+        funciono();
+      });
+      m.on(mpegts.Events.ERROR, (tipo, detalle, extra) => {
+        if (actual !== c || mpg !== m) return;
+        const msg = extra && (extra.msg || extra.code) ? " (" + (extra.code ? "código " + extra.code : "") + (extra.msg ? (extra.code ? ": " : "") + extra.msg : "") + ")" : "";
+        const hayReconexion = tipo === mpegts.ErrorTypes.MEDIA_ERROR || (tipo === mpegts.ErrorTypes.NETWORK_ERROR && yaReprodujo);
+        if (!hayReconexion) { fallo("mpegts " + (detalle || tipo) + (extra && extra.code ? " HTTP " + extra.code : "")); return; }
+        // Si llevaba más de 30 s estable, el contador de reconexiones empieza de nuevo.
+        if (inicioFlujo && Date.now() - inicioFlujo > 30000) reintentos = 0;
+        if (reintentos >= 8) {
+          clearTimeout(vigilante);
+          mostrarAviso("El flujo de este canal se corta repetidamente. [mpegts " + (detalle || tipo) + msg + "]");
+          return;
+        }
+        reintentos++;
+        mostrarAviso("Reintentando (flujo directo, reconexión " + reintentos + ")...");
+        try { m.destroy(); } catch (e) {}
+        if (mpg === m) mpg = null;
+        setTimeout(() => { if (actual === c && !mpg) crear(); }, 800);
+      });
+      m.attachMediaElement(video);
+      m.load();
+      const pr = m.play(); if (pr && pr.catch) pr.catch(() => {});
+    };
     cargarMpegts().then(() => {
       if (actual !== c) return;
       if (!window.mpegts || !mpegts.isSupported()) {
@@ -480,24 +516,7 @@ function reproducir(c, forzarProxy) {
         mostrarAviso("Este canal es un flujo de video directo (MPEG-TS) y este navegador no lo soporta. Prueba en un equipo con Chrome, Edge o Firefox.");
         return;
       }
-      const m = mpegts.createPlayer({ type: "mpegts", isLive: true, url: fuente }, {
-        enableWorker: true, stashInitialSize: 128,
-        liveBufferLatencyChasing: true, liveBufferLatencyMaxLatency: 8, liveBufferLatencyMinRemain: 1.5
-      });
-      mpg = m;
-      m.on(mpegts.Events.MEDIA_INFO, i => {
-        if (actual !== c) return;
-        $("diag").textContent = "Flujo MPEG-TS directo | " + (i.width ? i.width + "x" + i.height + " " : "") + "video " + (i.videoCodec || "?") + ", audio " + (i.audioCodec || "?");
-        funciono();
-      });
-      m.on(mpegts.Events.ERROR, (tipo, detalle, extra) => {
-        if (actual !== c) return;
-        const http = extra && extra.code ? " HTTP " + extra.code : "";
-        fallo("mpegts " + (detalle || tipo) + http);
-      });
-      m.attachMediaElement(video);
-      m.load();
-      const pr = m.play(); if (pr && pr.catch) pr.catch(() => {});
+      crear();
     }).catch(() => { if (actual === c) mostrarAviso("No se pudo cargar el componente para flujos MPEG-TS (mpegts.js). Revisa tu conexión."); });
   };
 
