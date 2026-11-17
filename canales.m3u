@@ -5,28 +5,20 @@ https://dc1644a9jazgj.cloudfront.net/beIN_Sports_Xtra_Espanol.m3u8
 http://45-171-64-30.sslip.io:6060/play/a00w/index.m3u8
 #EXTINF:-1 group-title="Deportes",ESPN
 http://168-228-44-241.sslip.io:9997/play/a06p/index.m3u8
-#EXTINF:-1 group-title="Deportes",ESPN 2
-http://190-61-47-54.sslip.io:8000/play/a005/index.m3u8
 #EXTINF:-1 group-title="Deportes",ESPN Premium
 http://45-134-141-161.sslip.io:2200/ARG/ESPN_Premium_Argentina_HD/tracks-v1a1/mono.m3u8
 #EXTINF:-1 group-title="Deportes",Fox Central
 http://181-78-106-127.sslip.io:5000/play/a009/index.m3u8
-#EXTINF:-1 group-title="Deportes",Fox Sports
-http://138-59-227-20.sslip.io:8000/play/a085/index.m3u8
 #EXTINF:-1 group-title="Deportes",FUTV
 http://45-228-234-9.sslip.io:8000/play/a06o/index.m3u8
 #EXTINF:-1 group-title="Deportes",Red Bull TV
 https://886bd3fbc782459f8de7555d32d7e9ce.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-957-WORBLATAMESFAST-WHALETVPLUS/957/whaletvplus/hls/master/playlist.m3u8
 #EXTINF:-1 group-title="Deportes",SKY Sports
 http://45-228-234-9.sslip.io:8000/play/a06b/index.m3u8
-#EXTINF:-1 group-title="Deportes",TNT Sports Premium
-http://181-78-79-131.sslip.io:8000/play/a0q9
 #EXTINF:-1 group-title="Deportes",TyC Sports
 https://amg26268-amg26268c14-freelivesports-emea-10267.playouts.now.amagi.tv/ts-us-e2-n2/playlist/amg26268-sportsstudio-tycsports-freelivesportsemea/playlist.m3u8
-#EXTINF:-1 group-title="Deportes",TyC Sports USA
-http://45-170-130-224.sslip.io:8000/play/a020/index.m3u8
 #EXTINF:-1 group-title="Infantil",Cartoon Network
-http://45-173-12-70.sslip.io:8000/play/a0fj
+http://158-172-217-18.sslip.io:8000/play/a03a/index.m3u8
 #EXTINF:-1 group-title="Infantil",Cartoonito
 http://45-173-12-70.sslip.io:8000/play/a0hh
 #EXTINF:-1 group-title="Infantil",Discovery Kids
