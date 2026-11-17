@@ -144,7 +144,7 @@ const RESPALDO = [
 
 const $ = id => document.getElementById(id);
 const video = $("video"), aviso = $("aviso"), wrap = $("wrap");
-let hls = null, actual = null, visibles = [], ovlTimer = null, vigilante = null, vigilanteVideo = null;
+let hls = null, mpg = null, actual = null, visibles = [], ovlTimer = null, vigilante = null, vigilanteVideo = null;
 
 function leer(clave, def) { try { const v = JSON.parse(localStorage.getItem(PREFIJO + clave)); return v ?? def; } catch (e) { return def; } }
 function guardar(clave, val) { try { localStorage.setItem(PREFIJO + clave, JSON.stringify(val)); } catch (e) {} }
@@ -291,6 +291,36 @@ let usaProxyEnLista = new Set(leer("tv_proxy_urls", []));
 const viaProxy = u => PROXY_URL.replace(/\/?$/, "/") + "?u=" + encodeURIComponent(u);
 const esIP = u => { try { return /^\d{1,3}(\.\d{1,3}){3}$/.test(new URL(u).hostname); } catch (e) { return false; } };
 
+/* ---------- Flujos MPEG-TS directos (sin lista .m3u8) ---------- */
+let promesaMpegts = null;
+const cargarMpegts = () => window.mpegts ? Promise.resolve() : (promesaMpegts = promesaMpegts || new Promise((ok, ko) => {
+  const sc = document.createElement("script");
+  sc.src = "https://cdn.jsdelivr.net/npm/mpegts.js@1.8.2/dist/mpegts.js";
+  sc.onload = ok; sc.onerror = () => { promesaMpegts = null; ko(new Error("no se pudo cargar mpegts.js")); };
+  document.head.appendChild(sc);
+}));
+// Lee solo los primeros bytes: "#EXTM3U" = lista HLS; 0x47 = flujo MPEG-TS directo.
+async function sondearFormato(url) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 12000);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok || !r.body) return "hls";
+    const lector = r.body.getReader();
+    let buf = new Uint8Array(0);
+    while (buf.length < 8) {
+      const { value, done } = await lector.read();
+      if (done) break;
+      const n = new Uint8Array(buf.length + value.length); n.set(buf); n.set(value, buf.length); buf = n;
+    }
+    ctl.abort();
+    const txt = new TextDecoder().decode(buf.slice(0, 7));
+    if (txt === "#EXTM3U" || txt.charCodeAt(0) === 0xFEFF) return "hls";
+    return buf[0] === 0x47 ? "ts" : "hls";
+  } catch (e) { return "hls"; }
+  finally { clearTimeout(t); }
+}
+
 function reproducir(c, forzarProxy) {
   actual = c;
   guardar("tv_ultimo", c.url);
@@ -302,6 +332,7 @@ function reproducir(c, forzarProxy) {
   clearInterval(sondaVideo); sondaVideo = null;
   $("diag").textContent = "";
   if (hls) { hls.destroy(); hls = null; }
+  if (mpg) { try { mpg.destroy(); } catch (e) {} mpg = null; }
 
   if (/\.mpd(\?|$)/i.test(c.url)) {
     mostrarAviso("Este canal usa formato DASH (.mpd) y la página todavía no lo soporta.");
@@ -369,6 +400,7 @@ function reproducir(c, forzarProxy) {
     video.play().catch(() => {});
   };
 
+  const iniciarReproductor = () => {
   if (nativoOk && esApple) {
     usarNativo();
   } else if (window.Hls && Hls.isSupported()) {
@@ -436,6 +468,48 @@ function reproducir(c, forzarProxy) {
     usarNativo();
   } else {
     mostrarAviso("Este navegador no soporta reproducción HLS.");
+  }
+  };
+
+  const usarMpegts = () => {
+    $("diag").textContent = "Flujo MPEG-TS directo (sin lista .m3u8)";
+    cargarMpegts().then(() => {
+      if (actual !== c) return;
+      if (!window.mpegts || !mpegts.isSupported()) {
+        clearTimeout(vigilante);
+        mostrarAviso("Este canal es un flujo de video directo (MPEG-TS) y este navegador no lo soporta. Prueba en un equipo con Chrome, Edge o Firefox.");
+        return;
+      }
+      const m = mpegts.createPlayer({ type: "mpegts", isLive: true, url: fuente }, {
+        enableWorker: true, stashInitialSize: 128,
+        liveBufferLatencyChasing: true, liveBufferLatencyMaxLatency: 8, liveBufferLatencyMinRemain: 1.5
+      });
+      mpg = m;
+      m.on(mpegts.Events.MEDIA_INFO, i => {
+        if (actual !== c) return;
+        $("diag").textContent = "Flujo MPEG-TS directo | " + (i.width ? i.width + "x" + i.height + " " : "") + "video " + (i.videoCodec || "?") + ", audio " + (i.audioCodec || "?");
+        funciono();
+      });
+      m.on(mpegts.Events.ERROR, (tipo, detalle, extra) => {
+        if (actual !== c) return;
+        const http = extra && extra.code ? " HTTP " + extra.code : "";
+        fallo("mpegts " + (detalle || tipo) + http);
+      });
+      m.attachMediaElement(video);
+      m.load();
+      const pr = m.play(); if (pr && pr.catch) pr.catch(() => {});
+    }).catch(() => { if (actual === c) mostrarAviso("No se pudo cargar el componente para flujos MPEG-TS (mpegts.js). Revisa tu conexión."); });
+  };
+
+  let rutaSinLista = false;
+  try { rutaSinLista = !/\.m3u8?$/i.test(new URL(c.url).pathname); } catch (e) {}
+  if (rutaSinLista) {
+    sondearFormato(fuente).then(tipo => {
+      if (actual !== c) return;
+      if (tipo === "ts") usarMpegts(); else iniciarReproductor();
+    });
+  } else {
+    iniciarReproductor();
   }
   dibujar();
 }
