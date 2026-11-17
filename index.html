@@ -354,9 +354,9 @@ function reproducir(c, forzarProxy) {
     const tecnico = "ruta " + (usaProxy ? "proxy" : "directa") + ", segmentos cargados " + est.frag +
       ", nivel " + nivel + ", estado " + video.readyState + "/4" +
       (est.incidencias.length ? ", incidencias: " + est.incidencias.join(", ") : "");
-    mostrarAviso("El canal no empezó a reproducirse tras 15 segundos. [" + tecnico + "]" + (video.error ? " [video " + video.error.code + "]" : ""));
+    mostrarAviso("El canal no empezó a reproducirse tras 45 segundos. [" + tecnico + "]" + (video.error ? " [video " + video.error.code + "]" : ""));
     $("diag").textContent = "Formato: " + info + " | " + tecnico;
-  }, 15000);
+  }, 45000);
 
   const nativoOk = !!video.canPlayType("application/vnd.apple.mpegurl");
   const esApple = /Apple/i.test(navigator.vendor || "");
@@ -372,7 +372,17 @@ function reproducir(c, forzarProxy) {
   if (nativoOk && esApple) {
     usarNativo();
   } else if (window.Hls && Hls.isSupported()) {
-    const h = new Hls({ capLevelToPlayerSize: true });
+    // Servidores tipo /play/xxxx (vía sslip.io) entregan cada fragmento al ritmo del vivo:
+    // se empieza a decodificar mientras llega, sin esperar a que termine la descarga.
+    let esSslip = false;
+    try { esSslip = /\.sslip\.io$/i.test(new URL(c.url).hostname); } catch (e) {}
+    const h = new Hls({
+      progressive: esSslip,
+      capLevelToPlayerSize: true,
+      manifestLoadingTimeOut: 40000, manifestLoadingMaxRetry: 2, manifestLoadingRetryDelay: 1500,
+      levelLoadingTimeOut: 40000, levelLoadingMaxRetry: 3,
+      fragLoadingTimeOut: 40000, fragLoadingMaxRetry: 3
+    });
     hls = h;
     let intentosMedia = 0;
     h.on(Hls.Events.FRAG_LOADED, (_, d) => {
