@@ -1,10 +1,6 @@
 #EXTM3U
 #EXTINF:-1 group-title="Deportes",beIN SPORTS XTRA
 https://dc1644a9jazgj.cloudfront.net/beIN_Sports_Xtra_Espanol.m3u8
-#EXTINF:-1 group-title="Deportes",Claro Sports
-http://45-171-64-30.sslip.io:6060/play/a00w/index.m3u8
-#EXTINF:-1 group-title="Deportes",ESPN
-http://168-228-44-241.sslip.io:9997/play/a06p/index.m3u8
 #EXTINF:-1 group-title="Deportes",ESPN Premium
 http://45-134-141-161.sslip.io:2200/ARG/ESPN_Premium_Argentina_HD/tracks-v1a1/mono.m3u8
 #EXTINF:-1 group-title="Deportes",Fox Central
