@@ -167,4 +167,5 @@ http://45-171-64-30.sslip.io:6060/play/a04n/index.m3u8
 http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/51.m3u8
 #EXTINF:-1 group-title="Premium",Studio Universal South
 http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/53.m3u8
+#EXTINF:-1 group-title="Premium",Telemundo Internacional
 http://190-60-46-156.sslip.io:8089/TELEMUNDO/index.m3u8
