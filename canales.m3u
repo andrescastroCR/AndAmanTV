@@ -3,12 +3,8 @@
 https://dc1644a9jazgj.cloudfront.net/beIN_Sports_Xtra_Espanol.m3u8
 #EXTINF:-1 group-title="Deportes",ESPN Premium
 http://45-134-141-161.sslip.io:2200/ARG/ESPN_Premium_Argentina_HD/tracks-v1a1/mono.m3u8
-#EXTINF:-1 group-title="Deportes",FUTV
-http://45-228-234-9.sslip.io:8000/play/a06o/index.m3u8
 #EXTINF:-1 group-title="Deportes",Red Bull TV
 https://886bd3fbc782459f8de7555d32d7e9ce.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-957-WORBLATAMESFAST-WHALETVPLUS/957/whaletvplus/hls/master/playlist.m3u8
-#EXTINF:-1 group-title="Deportes",SKY Sports
-http://45-228-234-9.sslip.io:8000/play/a06b/index.m3u8
 #EXTINF:-1 group-title="Deportes",TyC Sports
 https://amg26268-amg26268c14-freelivesports-emea-10267.playouts.now.amagi.tv/ts-us-e2-n2/playlist/amg26268-sportsstudio-tycsports-freelivesportsemea/playlist.m3u8
 #EXTINF:-1 group-title="Infantil",Cartoonito
@@ -17,22 +13,14 @@ http://45-173-12-70.sslip.io:8000/play/a0hh
 https://cdnlive.klicgo.net/esportsmax/live/playlist_dvr.m3u8
 #EXTINF:-1 group-title="Infantil",Extrema Kids
 https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/playlist.m3u8
-#EXTINF:-1 group-title="Infantil",FMH Kids
-http://38-87-224-19.sslip.io:2220/play/a03u/index.m3u8
 #EXTINF:-1 group-title="Infantil",MAX Anime
 https://cdnlive.klicgo.net/maxanime/live/playlist.m3u8
 #EXTINF:-1 group-title="Infantil",MAXcine Kids
 https://183.giatvcdn.com/giatvplayout7/giatv-209909/playlist.m3u8
 #EXTINF:-1 group-title="Infantil",Nick Jr.
 https://streaming.onnethn.com/NICK_JR/playlist.m3u8
-#EXTINF:-1 group-title="Infantil",Nickelodeon
-http://181-78-79-131.sslip.io:8000/play/a0qm
 #EXTINF:-1 group-title="Infantil",Tooncast
 http://45-134-141-161.sslip.io:2200/ARG/Tooncast/index.m3u8
-#EXTINF:-1 group-title="Motor",Discovery Turbo
-http://38-134-250-110.sslip.io:8000/play/a01y/index.m3u8
-#EXTINF:-1 group-title="Motor",Fierro a Fondo
-http://45-70-201-81.sslip.io:8000/play/a00x/index.m3u8
 #EXTINF:-1 group-title="Motor",Garage TV
 https://stream1.sersat.com/hls/garagetv.m3u8
 #EXTINF:-1 group-title="Música",88 Stereo
@@ -43,10 +31,6 @@ https://rtmp.info/iqtv/envivo/playlist.m3u8
 https://cloud.tvomix.com/KPOPMIX/index.m3u8
 #EXTINF:-1 group-title="Música",La Potente Radio TV
 https://latamvdo.com:3626/hybrid/play.m3u8
-#EXTINF:-1 group-title="Música",MiMúsica
-http://45-226-205-96.sslip.io:48000/play/a0f8/index.m3u8
-#EXTINF:-1 group-title="Música",MiMúsica Salsa
-http://181-78-12-119.sslip.io:16123/play/ch55/index.m3u8
 #EXTINF:-1 group-title="Música",SOY Plancha TV
 https://59ef525c24caa.streamlock.net/vmtv/soyplancha/playlist.m3u8
 #EXTINF:-1 group-title="Música",Totalmusic
@@ -55,10 +39,6 @@ https://cdn.global.elektamedia.com/live/c7eds/Totalmusic/SA_LIVE_hls_enc/master.
 https://59ef525c24caa.streamlock.net/tvurbano/tvurbano/playlist.m3u8
 #EXTINF:-1 group-title="Música",Video Tour Channel
 https://59ef525c24caa.streamlock.net/videotour/videotour/playlist.m3u8
-#EXTINF:-1 group-title="Música",Vintage Music
-https://59ef525c24caa.streamlock.net/vmtv/tvvintage/playlist.m3u8
-#EXTINF:-1 group-title="Música",VM Latino
-https://59ef525c24caa.streamlock.net/vmtv/vmlatino/playlist.m3u8
 #EXTINF:-1 group-title="Música",VoiceOver Radio TV
 https://cloudvideo.servers10.com:8081/8198/index.m3u8
 #EXTINF:-1 group-title="Nacionales",Agrotendencia TV
@@ -89,8 +69,6 @@ https://videohd.live:19360/8076/8076.m3u8
 https://rtmp.info/sanjosetv/envivo/playlist.m3u8
 #EXTINF:-1 group-title="Nacionales",San Vito Televisión
 https://stream.lamegatv.com/hls/sanvitotelevision/index.m3u8
-#EXTINF:-1 group-title="Nacionales",SupercableTV
-http://191-102-39-254.sslip.io:5000/live/5up3r5/playlist.m3u8
 #EXTINF:-1 group-title="Nacionales",Teletica 7
 https://cdn01.teletica.com/TeleticaLiveStream/Stream/playlist_dvr.m3u8
 #EXTINF:-1 group-title="Nacionales",TV Sur Canal 14
@@ -115,8 +93,6 @@ https://amg00793-amg00793c40-rakuten-es-5444.playouts.now.amagi.tv/playlist.m3u8
 https://cablered.iptvperu.tv:1936/cablered/bitme_new/playlist.m3u8
 #EXTINF:-1 group-title="Premium",Cinemax
 https://streaming.onnethn.com/CINEMAX/playlist.m3u8
-#EXTINF:-1 group-title="Música",Claro Música
-http://45-171-64-30.sslip.io:6060/play/a010
 #EXTINF:-1 group-title="Premium",Comedy Central
 http://190-93-224-42.sslip.io/COMEDY-CENTRAL/index.m3u8
 #EXTINF:-1 group-title="Premium",Discovery Home & Health
@@ -129,18 +105,10 @@ https://iptv.bitred.cl/ELGOURMET_HD/index.m3u8
 https://estrellatv-oando.amagi.tv/playlist.m3u8
 #EXTINF:-1 group-title="Premium",HBO
 https://streaming.onnethn.com/HBO/playlist.m3u8
-#EXTINF:-1 group-title="Premium",HBO 2
-http://45-171-64-30.sslip.io:6060/play/a00i/index.m3u8
-#EXTINF:-1 group-title="Premium",HBO Family
-http://45-171-64-30.sslip.io:6060/play/a00k/index.m3u8
 #EXTINF:-1 group-title="Premium",HBO+
 http://45-134-141-161.sslip.io:2200/ARG/HBO_HD/index.m3u8
 #EXTINF:-1 group-title="Premium",Historia
 https://d1k3vzh2ivy22k.cloudfront.net/Historia.m3u8
-#EXTINF:-1 group-title="Premium",History
-http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/37.m3u8
-#EXTINF:-1 group-title="Premium",Investigation Discovery
-http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/41.m3u8
 #EXTINF:-1 group-title="Premium",Las Estrellas
 https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index.m3u8
 #EXTINF:-1 group-title="Premium",Lifetime
@@ -157,15 +125,7 @@ https://183.giatvcdn.com/giatvplayout7/giatv-209163/playlist.m3u8
 https://183.giatvcdn.com/giatvplayout7/giatv-208730/playlist.m3u8
 #EXTINF:-1 group-title="Premium",MAXcine Family
 https://183.giatvcdn.com/giatvplayout7/giatv-208817/playlist.m3u8
-#EXTINF:-1 group-title="Premium",NatureTime
-https://jmp2.uk/plu-681ba2729624e6275efe0044.m3u8
 #EXTINF:-1 group-title="Premium",Smithsonian Channel
 https://jmp2.uk/plu-63a084934734f30007457b2c.m3u8
-#EXTINF:-1 group-title="Premium",Space
-http://45-171-64-30.sslip.io:6060/play/a04n/index.m3u8
-#EXTINF:-1 group-title="Premium",Star Channel
-http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/51.m3u8
-#EXTINF:-1 group-title="Premium",Studio Universal South
-http://45-184-109-10.sslip.io/live/69393EAE6ADBC65A68F942022362A202/53.m3u8
 #EXTINF:-1 group-title="Premium",Telemundo Internacional
 http://190-60-46-156.sslip.io:8089/TELEMUNDO/index.m3u8
