@@ -69,6 +69,8 @@ https://lstv.duckdns.org:449/hls/lstv.m3u8
 https://videohd.live:19360/8076/8076.m3u8
 #EXTINF:-1 group-title="Nacionales",San José TV
 https://rtmp.info/sanjosetv/envivo/playlist.m3u8
+#EXTINF:-1 group-title="Nacionales",Best Clásicos TV
+https://acceso.mediosdecostarica.com:3873/hybrid/play.m3u8
 #EXTINF:-1 group-title="Nacionales",San Vito Televisión
 https://stream.lamegatv.com/hls/sanvitotelevision/index.m3u8
 #EXTINF:-1 group-title="Nacionales",Teletica 7
